@@ -3,7 +3,7 @@ HOME = "/home/#{USER}"
 BASH_RC = "#{HOME}/.bashrc"
 
 
-%w{vim git openssl unzip}.each do |pkg|
+%w{vim git}.each do |pkg|
   package pkg
 end
 
@@ -11,6 +11,8 @@ end
 %w{gcc gcc-c++ glibc-devel make ncurses-devel openssl-devel autoconf java-1.8.0-openjdk-devel}.each do |pkg|
   package pkg
 end
+# For Elixir
+package 'unzip'
 
 asdf_path     = "#{HOME}/.asdf"
 validate_asdf = "source #{asdf_path}/asdf.sh; source #{asdf_path}/completions/asdf.bash;"
@@ -46,3 +48,19 @@ langs.each do |lang|
   end
 end
 
+# Setting vim
+dein_dir_path = "#{HOME}/.vim/dein/repos/github.com/Shougo/dein.vim"
+directory dein_dir_path do
+  user USER
+end
+
+git dein_dir_path do
+  user USER
+  repository "https://github.com/Shougo/dein.vim.git"
+  action :sync
+end
+
+remote_file "#{HOME}/.vimrc" do
+  user USER
+  source "cookbooks/vim/files/home/.vimrc"
+end
