@@ -44,7 +44,7 @@ langs.each do |lang|
       asdf install    #{lang[:name]} #{lang[:version]}
       asdf global     #{lang[:name]} #{lang[:version]}
     "
-    not_if "test `#{validate_asdf} asdf plugin-list | grep #{lang[:name]} | wc -l` -eq 1"
+    only_if "test `#{validate_asdf} asdf plugin-list | grep #{lang[:name]} | wc -l` -eq 0"
   end
 end
 
@@ -63,4 +63,19 @@ end
 remote_file "#{HOME}/.vimrc" do
   user USER
   source "cookbooks/vim/files/home/.vimrc"
+end
+
+# Setting bash
+bashrc_ext = "#{HOME}/.bashrc_ext"
+remote_file bashrc_ext do
+  user USER
+  source "cookbooks/bash/files/home/.bashrc_ext"
+end
+
+execute 'read bashrc_ext' do
+  read_bash_ext = "source #{bashrc_ext}"
+  command "
+    echo '#{read_bash_ext}' >> #{BASH_RC}
+  "
+  only_if "test `grep '#{read_bash_ext}' #{BASH_RC} | wc -l` -eq 0"
 end
