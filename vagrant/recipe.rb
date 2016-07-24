@@ -3,7 +3,7 @@ HOME = "/home/#{USER}"
 BASH_RC = "#{HOME}/.bashrc"
 
 
-%w{vim git openssl}.each do |pkg|
+%w{vim git openssl unzip}.each do |pkg|
   package pkg
 end
 
@@ -12,12 +12,12 @@ end
   package pkg
 end
 
-asdf_path = "#{HOME}/.asdf"
+asdf_path     = "#{HOME}/.asdf"
+validate_asdf = "source #{asdf_path}/asdf.sh; source #{asdf_path}/completions/asdf.bash;"
 
 execute 'set asdf script' do
   command "
-    echo '. #{asdf_path}/asdf.sh'               >> #{BASH_RC}
-    echo '. #{asdf_path}/completions/asdf.bash' >> #{BASH_RC}
+    echo '#{validate_asdf}' >> #{BASH_RC}
   "
   not_if "test -d #{asdf_path}"
 end
@@ -28,4 +28,21 @@ git asdf_path do
   action :sync
 end
 
+langs = [
+  {name: 'erlang', version: '19.0' , repo: 'https://github.com/asdf-vm/asdf-erlang.git'},
+  {name: 'elixir', version: '1.3.2', repo: 'https://github.com/asdf-vm/asdf-elixir'    },
+  {name: 'nodejs', version: '6.3.1', repo: 'https://github.com/asdf-vm/asdf-nodejs'    },
+]
+langs.each do |lang|
+  execute "install #{lang[:name]} by asdf" do
+    user USER
+    command "
+      #{validate_asdf}
+      asdf plugin-add #{lang[:name]} #{lang[:repo   ]}
+      asdf install    #{lang[:name]} #{lang[:version]}
+      asdf global     #{lang[:name]} #{lang[:version]}
+    "
+    not_if "test `#{validate_asdf} asdf plugin-list | grep #{lang[:name]} | wc -l` -eq 1"
+  end
+end
 
