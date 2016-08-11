@@ -1,6 +1,7 @@
 USER = 'vagrant'
 HOME = "/home/#{USER}"
 BASH_RC = "#{HOME}/.bashrc"
+USER_BIN_DIR = '/usr/local/bin'
 
 
 %w{vim git}.each do |pkg|
@@ -13,6 +14,24 @@ end
 end
 # For Elixir
 package 'unzip'
+
+# For Phoenix
+execute 'install inotify' do
+  user 'root'
+  url    = 'http://github.com/downloads/rvoicilas/inotify-tools/inotify-tools-3.14.tar.gz'
+  file   = 'inotify-tools'
+  output = "#{file}.tar.gz"
+  command "
+    curl -L #{url} -o #{output}
+    tar xzf #{output}
+    cd #{file}
+    ./configure && make && make install
+    cd ..
+    rm -f #{file}*
+  "
+  not_if "test -f #{USER_BIN_DIR}/inotifywait -a #{USER_BIN_DIR}/inotifywatch"
+end
+
 
 asdf_path     = "#{HOME}/.asdf"
 validate_asdf = "source #{asdf_path}/asdf.sh; source #{asdf_path}/completions/asdf.bash;"
