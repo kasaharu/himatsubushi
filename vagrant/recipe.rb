@@ -98,3 +98,12 @@ execute 'read bashrc_ext' do
   "
   only_if "test `grep '#{read_bash_ext}' #{BASH_RC} | wc -l` -eq 0"
 end
+
+# Install Phoenix
+execute 'mix local.hex' do
+  command "
+    #{validate_asdf}
+    mix local.hex --force
+    mix archive.install https://github.com/phoenixframework/archives/raw/master/phoenix_new.ez --force
+  "
+end
