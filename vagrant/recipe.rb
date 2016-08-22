@@ -101,6 +101,7 @@ end
 
 # Install Phoenix
 execute 'mix local.hex' do
+  user USER
   command "
     #{validate_asdf}
     mix local.hex --force
